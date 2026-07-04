@@ -304,6 +304,8 @@ static inline int _json_object_put_maybe_free(struct json_object *jso, int free_
 	if (jso->_user_delete)
 		jso->_user_delete(jso, jso->_userdata);
 	jso->_user_delete = NULL;
+	jso->_userdata = NULL; // aka _delete_parent, but json_object_put() will
+	                       // have already grabbed it if it needs it.
 
 	switch (jso->o_type)
 	{
@@ -435,10 +437,11 @@ int json_object_put(struct json_object *jso)
 
 		// All slots are cleared, now pop back up to the parent
 		{
-			json_object *parent = jso->_delete_parent;
-			int rc;
 			// jso is a child that's already been detached from its parent
 			// so we need to actually free it now
+			// Be sure to grab _delete_parent *before* freeing jso.
+			json_object *parent = jso->_delete_parent;
+			int rc;
 			assert(jso->_ref_count == 0);
 			jso->_ref_count++;   // We're the exclusive owner of jso, non-atomic add is ok.
 			// Note: the call must not be inside assert(), or it gets
