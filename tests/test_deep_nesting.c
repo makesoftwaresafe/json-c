@@ -56,6 +56,37 @@ static void test_deep_nesting_tostring(const char *str)
 	json_tokener_free(tok);
 }
 
+struct userdata_test {
+	int userdata_val;
+	char *p;
+};
+/*
+ * Check that the user_delete function is only called once, even with the
+ * newer code to avoid deeply nested calls during json_object_put().
+ */
+static void user_delete_test(struct json_object *jso, void *userdata_in)
+{
+	struct userdata_test *userdata = (struct userdata_test *)userdata_in;
+	printf("in user_delete, userdata_val=%d\n", userdata->userdata_val);
+	fflush(stdout);
+	userdata->userdata_val = 0;
+	userdata->p[0] = 'x';
+	userdata->p[8191] = 'x';
+	free(userdata->p);
+}
+static void test_nesting_with_user_delete(void)
+{
+	json_object *jso;
+	struct userdata_test userdata_val = {
+		1, malloc(8192)
+	};
+
+ 	jso = json_object_new_object();
+	json_object_set_userdata(jso, &userdata_val, user_delete_test);
+	json_object_object_add(jso, "somekey", json_object_new_string("foo"));
+	json_object_put(jso);
+}
+
 int main(int argc, char **argv)
 {
 	char *str;	
@@ -76,6 +107,8 @@ int main(int argc, char **argv)
 		test_deep_nesting_tostring(str);
 
 	free(str);
+
+	test_nesting_with_user_delete();
 
 	return EXIT_SUCCESS;
 }
