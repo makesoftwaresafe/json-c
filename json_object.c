@@ -996,9 +996,10 @@ int64_t json_object_get_int64(const struct json_object *jso)
 		}
 	}
 	case json_type_double:
-		// INT64_MAX can't be exactly represented as a double
-		// so cast to tell the compiler it's ok to round up.
-		if (JC_DOUBLE_C(jso)->c_double > (double)INT64_MAX)
+		// INT64_MAX can't be exactly represented as a double, so it
+		// rounds up to (double)(INT64_MAX+1).  Use >= so that value is
+		// rejected rather than cast to int64_t, which would be UB.
+		if (JC_DOUBLE_C(jso)->c_double >= (double)INT64_MAX)
 		{
 			errno = ERANGE;
 			return INT64_MAX;
@@ -1049,9 +1050,10 @@ uint64_t json_object_get_uint64(const struct json_object *jso)
 		}
 	}
 	case json_type_double:
-		// UINT64_MAX can't be exactly represented as a double
-		// so cast to tell the compiler it's ok to round up.
-		if (JC_DOUBLE_C(jso)->c_double > (double)UINT64_MAX)
+		// UINT64_MAX can't be exactly represented as a double, so it
+		// rounds up to (double)(UINT64_MAX+1).  Use >= so that value is
+		// rejected rather than cast to uint64_t, which would be UB.
+		if (JC_DOUBLE_C(jso)->c_double >= (double)UINT64_MAX)
 		{
 			errno = ERANGE;
 			return UINT64_MAX;
