@@ -65,6 +65,8 @@ int main(int argc, char **argv)
 	CHECK_GET_INT64(N_DBL(INFINITY),  INT64_MAX && errno == ERANGE);
 	CHECK_GET_INT64(N_DBL(-INFINITY), INT64_MIN && errno == ERANGE);
 	CHECK_GET_INT64(N_DBL(NAN),       INT64_MIN && errno == EINVAL);
+	// (double)INT64_MAX rounds up to 2^63, which is one past INT64_MAX
+	CHECK_GET_INT64(N_DBL(9223372036854775808.0), INT64_MAX && errno == ERANGE);
 	printf("INT64 GET PASSED\n");
 
 	CHECK_GET_UINT64(N_U64(UINT64_MAX), UINT64_MAX && errno == 0);
@@ -73,6 +75,8 @@ int main(int argc, char **argv)
 	CHECK_GET_UINT64(N_DBL(INFINITY),   UINT64_MAX && errno == ERANGE);
 	CHECK_GET_UINT64(N_DBL(-INFINITY),  0          && errno == ERANGE);
 	CHECK_GET_UINT64(N_DBL(NAN),        0          && errno == EINVAL);
+	// (double)UINT64_MAX rounds up to 2^64, which is one past UINT64_MAX
+	CHECK_GET_UINT64(N_DBL(18446744073709551616.0), UINT64_MAX && errno == ERANGE);
 	printf("UINT64 GET PASSED\n");
 
 	printf("PASSED\n");
