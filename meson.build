@@ -265,12 +265,37 @@ libjson = library('json-c',
 jsonc_dep = declare_dependency(link_with: libjson, include_directories: inc)
 meson.override_dependency('json-c', jsonc_dep)
 
-# Install headers
-install_headers(
+# Install headers into json-c/ subdirectory (matches CMake layout)
+installed_headers = [
   'arraylist.h', 'debug.h', 'json_c_version.h', 'json_inttypes.h',
   'json_object.h', 'json_object_iterator.h', 'json_tokener.h',
   'json_types.h', 'json_util.h', 'json_visit.h', 'linkhash.h',
   'printbuf.h', json_configure_header, json_header
+]
+
+if not get_option('disable_json_pointer')
+  installed_headers += ['json_pointer.h']
+  if not get_option('disable_json_patch')
+    installed_headers += ['json_patch.h']
+  endif
+endif
+
+install_headers(installed_headers, subdir: 'json-c')
+
+# pkg-config file
+configure_file(
+  input: 'json-c.pc.in',
+  output: 'json-c.pc',
+  install: true,
+  install_dir: get_option('libdir') / 'pkgconfig',
+  configuration: {
+    'prefix': get_option('prefix'),
+    'exec_prefix': get_option('prefix'),
+    'libdir': get_option('libdir'),
+    'includedir': get_option('includedir'),
+    'VERSION': meson.project_version(),
+    'LIBS': '',
+  }
 )
 
 # Optional apps
@@ -281,4 +306,4 @@ endif
 # Optional tests
 if get_option('buildtype') == 'debug'
   subdir('tests')
-endif
+endif 
