@@ -209,6 +209,10 @@ static int json_patch_apply_move_copy(struct json_object **res,
 	}
 
 	from_s = json_object_get_string(jfrom);
+	if (from_s == NULL) {
+		_set_err(EINVAL, "Patch object 'from' field is not a string");
+		return -1;
+	}
 
 	from_s_len = strlen(from_s);
 	if (strncmp(from_s, path, from_s_len) == 0) {
@@ -320,11 +324,19 @@ int json_patch_apply(struct json_object *copy_from, struct json_object *patch,
 			return -1;
 		}
 		op = json_object_get_string(jop);
+		if (op == NULL) {
+			_set_err(EINVAL, "Patch object 'op' field is not a string");
+			return -1;
+		}
 		if (!json_object_object_get_ex(patch_elem, "path", &jpath)) {
 			_set_err(EINVAL, "Patch object does not contain 'path' field");
 			return -1;
 		}
 		path = json_object_get_string(jpath); // Note: empty string is ok!
+		if (path == NULL) {
+			_set_err(EINVAL, "Patch object 'path' field is not a string");
+			return -1;
+		}
 
 		if (!strcmp(op, "test"))
 			rc = json_patch_apply_test(base, patch_elem, path, patch_error);
