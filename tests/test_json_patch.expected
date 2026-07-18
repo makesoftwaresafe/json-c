@@ -161,3 +161,5 @@ Testing 'null op field must be rejected, not dereferenced', doc '{ "foo": "bar" 
  => json_patch_apply failed as expected: ERRNO=EINVAL at patch idx 0: Patch object 'op' field is not a string
 Testing 'null from field must be rejected, not dereferenced', doc '{ "foo": "bar" }' patch '[ { "op": "move", "from": null, "path": "\/foo" } ]' : OK
  => json_patch_apply failed as expected: ERRNO=EINVAL at patch idx 0: Patch object 'from' field is not a string
+Testing 'null path field must be rejected, not dereferenced', doc '{ "foo": "bar" }' patch '[ { "op": "remove", "path": null } ]' : OK
+ => json_patch_apply failed as expected: ERRNO=EINVAL at patch idx 0: Patch object 'path' field is not a string
