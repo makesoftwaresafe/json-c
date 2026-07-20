@@ -203,6 +203,10 @@ static void test_wrong_inputs_get(void)
 	assert(0 != json_pointer_get(jo1, "/foo/01", NULL));
 	assert(errno == EINVAL);
 	errno = 0;
+	/* An empty reference token is not a valid array index */
+	assert(0 != json_pointer_get(jo1, "/foo/", NULL));
+	assert(errno == EINVAL);
+	errno = 0;
 	assert(0 != json_pointer_getf(jo1, NULL, "/%s/a", "foo"));
 	assert(errno == EINVAL);
 	errno = 0;
@@ -312,6 +316,10 @@ static void test_wrong_inputs_set(void)
 
 	assert(0 != json_pointer_set(&jo1, "0", (jo2 = json_object_new_string("cod"))));
 	printf("PASSED - SET - failed with invalid array index'\n");
+	json_object_put(jo2);
+
+	assert(0 != json_pointer_set(&jo1, "/foo/", (jo2 = json_object_new_string("cod"))));
+	printf("PASSED - SET - failed with empty array index'\n");
 	json_object_put(jo2);
 
 	jo2 = json_object_new_string("whatever");

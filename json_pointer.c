@@ -46,6 +46,12 @@ static void string_replace_all_occurrences_with_char(char *s, const char *occur,
 static int is_valid_index(const char *path, size_t *idx)
 {
 	size_t i, len = strlen(path);
+	/* an empty reference token is never a valid array index */
+	if (len == 0)
+	{
+		errno = EINVAL;
+		return 0;
+	}
 	/* this code-path optimizes a bit, for when we reference the 0-9 index range
 	 * in a JSON array and because leading zeros not allowed
 	 */
