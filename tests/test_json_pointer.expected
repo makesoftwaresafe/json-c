@@ -36,4 +36,5 @@ PASSED - SET - failed with NULL params for input json & path
 PASSED - SET - failed 'cod' with path 'foo/bar'
 PASSED - SET - failed 'cod' with path 'foo/bar'
 PASSED - SET - failed with invalid array index'
+PASSED - SET - failed with empty array index'
 PASSED - SET - failed to set index to non-array
